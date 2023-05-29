@@ -11,5 +11,5 @@ RUN mvn clean package
 FROM openjdk:11-jdk-slim
 COPY --from=build /target/spring-boot-test.jar test.jar
 # ENV PORT=8080
-EXPOSE 8080
+EXPOSE 9090
 ENTRYPOINT ["java","-jar","test.jar"]
