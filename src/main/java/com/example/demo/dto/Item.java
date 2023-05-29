@@ -37,8 +37,10 @@ public class Item {
     @Column(name = "status")
     private String status;
 
+    @Transient
     private int titleId;
 
+    @Transient
     private int descId;
 
 }
