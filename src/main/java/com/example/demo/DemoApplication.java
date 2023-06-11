@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 @SpringBootApplication
-@RequiredArgsConstructor
 @EnableJpaRepositories
-@CrossOrigin
 public class DemoApplication {
 
 	public static void main(String[] args) {
