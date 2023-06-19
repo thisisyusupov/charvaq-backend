@@ -21,3 +21,16 @@ spring:
       hibernate:
         enable_lazy_load_no_trans: true
 
+jwt:
+  token:
+    secret: jwtcleeancode
+    validity: 8640000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    tryItOutEnabled: true
+    path: swagger-ui
+    csrf:
+      enabled: true
