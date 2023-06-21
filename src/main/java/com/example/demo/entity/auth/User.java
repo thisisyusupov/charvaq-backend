@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,16 +23,26 @@ public class User {
     private Long id;
 
     @NotNull
-    private String userName;
+    private String name;
+
+    private String family;
+
+    private String fatherName;
 
     private String password;
 
     private String email;
 
-    private String firstName;
+    private String login;
 
-    private String lastName;
+    private LocalDate birthday;
 
+    private String passportNumber;
+
+    private String systemRoleName;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name="status")
     private Status status;
 
     @ManyToMany(fetch = FetchType.EAGER)

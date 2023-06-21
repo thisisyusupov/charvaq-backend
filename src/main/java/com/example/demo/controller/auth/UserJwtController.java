@@ -39,9 +39,9 @@ public class UserJwtController {
         if (user == null){
             throw new UsernameNotFoundException("Bu foydalanuvch mavjut emas");
         }
-        String token = jwtTokenProvider.createToken(user.getUserName(), user.getRoles());
+        String token = jwtTokenProvider.createToken(user.getLogin(), user.getRoles());
         Map<Object, Object> map = new HashMap<>();
-        map.put("username", user.getUserName());
+        map.put("username", user.getLogin());
         map.put("token", token);
         return ResponseEntity.ok(map);
     }

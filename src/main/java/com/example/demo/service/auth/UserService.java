@@ -24,11 +24,11 @@ public class UserService {
     }
 
     public Boolean checkUserName(String userName){
-        return userRepository.existsByUserName(userName);
+        return userRepository.existsByLogin(userName);
     }
 
     public User getByUserName(String userName){
-        return userRepository.findByUserName(userName);
+        return userRepository.findByLogin(userName);
     }
 
 }
