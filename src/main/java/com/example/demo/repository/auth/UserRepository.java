@@ -7,11 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
 
-    @Query(value = "select * from db_user where login = :login ",nativeQuery = true)
-    User findByLogin(@Param("login") String login);
+    Optional<User> findByLogin(String login);
 
     boolean existsByLogin(String login);
 

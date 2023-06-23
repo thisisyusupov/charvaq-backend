@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -22,7 +24,7 @@ public class UserController {
         if (!checkPasswordLength(user.getPassword())){
             return new ResponseEntity("Parol uznuligi 4 dan kam", HttpStatus.BAD_REQUEST);
         }
-        if (userService.checkUserName(user.getLogin())){
+        if (userService.checkUserName(user.getUsername())){
             return new ResponseEntity("Bu user Oldin ro'yxatdan o'tgan", HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(userService.create(user));
@@ -37,6 +39,11 @@ public class UserController {
         String login = SecurityUtils.getCurrentUserName().get();
         User user = userService.getByUserName(login);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/admin-list")
+    public List<User> getUserList(){
+        return userService.getUserList();
     }
 }
 

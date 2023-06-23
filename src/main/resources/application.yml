@@ -9,7 +9,8 @@ spring:
 
     main:
       allow-bean-definition-overriding: true
-
+  main:
+    allow-circular-references: true
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,6 +26,10 @@ jwt:
   token:
     secret: jwtcleeancode
     validity: 8640000
+app:
+  cors:
+    allowedOrigins: http://localhost:8080
+
 
 springdoc:
   api-docs:

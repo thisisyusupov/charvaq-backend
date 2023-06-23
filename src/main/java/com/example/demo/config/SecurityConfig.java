@@ -1,19 +1,26 @@
 package com.example.demo.config;
 
+import com.example.demo.service.auth.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import com.example.demo.security.JwtConfigurer;
-import com.example.demo.security.JwtTokenProvider;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig  extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     public final static String[] WHITE_LIST = {
             "/swagger-ui/**",
@@ -24,36 +31,57 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
             "/api/auth/login"
     };
 
-    private final UserDetailsService userDetailsService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService authService;
 
-    public SecurityConfig(@Lazy UserDetailsService userDetailsService, JwtTokenProvider jwtTokenProvider) {
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenProvider = jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
+
+
+    public SecurityConfig(EntityManager entityManager, @Lazy UserService authService, JwtAuthenticationEntryPoint unauthorizedHandler) {
+        this.entityManager = entityManager;
+        this.authService = authService;
+        this.unauthorizedHandler = unauthorizedHandler;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return super.authenticationManager();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception{
-        http
+    protected void configure(HttpSecurity http) throws Exception {
+        http.cors()
+                .and()
                 .csrf()
                 .disable()
-                .headers()
-                .frameOptions()
-                .disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(WHITE_LIST).permitAll()
-                .antMatchers(AUTH_WHITE_LIST).permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .cors()
-                .and()
-                .apply(new JwtConfigurer(jwtTokenProvider));
+                .antMatchers(WHITE_LIST)
+                .permitAll()
+                .antMatchers(AUTH_WHITE_LIST)
+                .permitAll()
+                .anyRequest()
+                .authenticated();
+
+        http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
+        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Autowired
+    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(authService).passwordEncoder(passwordEncoder());
     }
 }
